@@ -3,7 +3,7 @@
 // ============================================================================
 window.APP_CONFIG = {
   // URL pública del backend (instancia EC2). Ej: "http://34.201.10.55:8080"
-  apiBaseUrl: "http://<IP-PUBLICA-EC2>:8080"
+  apiBaseUrl: "http://localhost:8080",
 
   // ---- Azure AD B2C ----
   // Tenant: el subdominio antes de .onmicrosoft.com (ej. "tutenantb2c")
