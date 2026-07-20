@@ -1,0 +1,63 @@
+spring:
+  application:
+    name: cursos
+
+  # ── Spring Security: OAuth2 Resource Server (Azure AD B2C) ──────────────────
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          # Issuer obtenido desde jwt.ms → campo "iss" al ejecutar el User Flow
+          # REEMPLAZAR con tu valor real de Azure AD B2C
+          # Ejemplo: https://TUNOMBRE.b2clogin.com/TENANT-ID/v2.0/
+          issuer-uri: ${AZURE_ISSUER_URI:https://tutenantb2c.b2clogin.com/00000000-0000-0000-0000-000000000000/v2.0/}
+
+          # jwks_uri obtenido del metadata del User Flow
+          # Ejemplo: https://TUNOMBRE.b2clogin.com/TUNOMBRE.onmicrosoft.com/B2C_1_signupsignin/discovery/v2.0/keys
+          jwk-set-uri: ${AZURE_JWK_SET_URI:https://tutenantb2c.b2clogin.com/tutenantb2c.onmicrosoft.com/B2C_1_signupsignin/discovery/v2.0/keys}
+
+  # ── RabbitMQ (contenedor Docker, ver docker-compose.yml) ────────────────────
+  rabbitmq:
+    host: ${RABBITMQ_HOST:localhost}
+    port: ${RABBITMQ_PORT:5672}
+    username: ${RABBITMQ_USER:guest}
+    password: ${RABBITMQ_PASSWORD:guest}
+
+  # ── Datasource Oracle Cloud (AJUSTAR con tus datos reales, ver nota abajo) ──
+  datasource:
+    url: ${ORACLE_DB_URL:jdbc:oracle:thin:@//TU_HOST_ORACLE:1521/TU_SERVICE_NAME}
+    username: ${ORACLE_DB_USER:ADMIN}
+    password: ${ORACLE_DB_PASSWORD:}
+    driver-class-name: oracle.jdbc.OracleDriver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.OracleDialect
+    show-sql: true
+
+# ── Credenciales AWS (se inyectan desde secrets de GitHub Actions / docker run) ──
+cloud:
+  aws:
+    credentials:
+      access-key: ${AWS_ACCESS_KEY_ID}
+      secret-key: ${AWS_SECRET_ACCESS_KEY}
+      session-token: ${AWS_SESSION_TOKEN}
+    region:
+      static: us-east-1
+    s3:
+      enabled: true
+
+# ── Propiedades de la aplicación ────────────────────────────────────────────────
+app:
+  s3:
+    bucket: ${S3_BUCKET_NAME:mi-bucket-cursos}
+  efs:
+    path: /app/efs
+  cors:
+    allowed-origins: ${CORS_ALLOWED_ORIGINS:*}
+
+server:
+  port: 8080

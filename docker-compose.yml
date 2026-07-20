@@ -1,0 +1,46 @@
+version: "3.8"
+
+services:
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"   # puerto AMQP (usado por la app)
+      - "15672:15672" # panel de administracion web: http://localhost:15672
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+
+  cursos-app:
+    build: .
+    container_name: cursos-app
+    depends_on:
+      - rabbitmq
+    ports:
+      - "8080:8080"
+    environment:
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_PORT: 5672
+      RABBITMQ_USER: guest
+      RABBITMQ_PASSWORD: guest
+      # Completar con tus credenciales reales para pruebas locales:
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
+      AWS_SESSION_TOKEN: ${AWS_SESSION_TOKEN}
+      S3_BUCKET_NAME: ${S3_BUCKET_NAME}
+      AZURE_ISSUER_URI: ${AZURE_ISSUER_URI}
+      AZURE_JWK_SET_URI: ${AZURE_JWK_SET_URI}
+      ORACLE_DB_URL: ${ORACLE_DB_URL}
+      ORACLE_DB_USER: ${ORACLE_DB_USER}
+      ORACLE_DB_PASSWORD: ${ORACLE_DB_PASSWORD}
+      CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-*}
+
+  cursos-frontend:
+    image: nginx:alpine
+    container_name: cursos-frontend
+    depends_on:
+      - cursos-app
+    ports:
+      - "80:80"
+    volumes:
+      - ./frontend:/usr/share/nginx/html:ro

@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Plataforma de Cursos — Demo Cloud Native</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand">
+    <span class="dot"></span>
+    <h1>Plataforma de Cursos en Línea</h1>
+    <span class="sub">Demo Cloud Native · CDY2204</span>
+  </div>
+  <div class="auth-box" id="authBox">
+    <button class="btn-primary" id="btnLogin">Iniciar sesión (Azure AD B2C)</button>
+  </div>
+</div>
+
+<!-- Pantalla de login -->
+<div class="login-screen" id="loginScreen">
+  <h2>Inicia sesión para continuar</h2>
+  <p>El acceso se valida contra Azure AD B2C (Identity as a Service). Usa una cuenta con
+     rol <strong>estudiante</strong> o <strong>instructor</strong> configurado en el tenant.</p>
+</div>
+
+<!-- App (visible tras login) -->
+<div class="layout" id="appLayout" style="display:none;">
+  <div class="sidenav">
+    <button class="tab active" data-tab="materiales"><span class="key">01</span>Materiales</button>
+    <button class="tab" data-tab="inscripciones"><span class="key">02</span>Inscripciones</button>
+    <button class="tab" data-tab="calificaciones"><span class="key">03</span>Calificaciones</button>
+  </div>
+
+  <div class="content">
+
+    <!-- ===================== MATERIALES ===================== -->
+    <div class="panel active" id="panel-materiales">
+      <h2>Materiales del curso</h2>
+      <p class="lead">Gestión de contenido (EFS) y almacenamiento Cloud (AWS S3). El instructor
+        crea y publica el material; estudiantes e instructores lo consultan y descargan.</p>
+
+      <div class="card">
+        <h3>Crear material <span class="badge storage">EFS</span></h3>
+        <form id="formCrearMaterial">
+          <div class="field-row">
+            <div><label>Código curso</label><input name="codigoCurso" required placeholder="CUR-101"></div>
+            <div><label>Nombre curso</label><input name="nombreCurso" required placeholder="Introducción a Java"></div>
+            <div><label>Instructor</label><input name="instructor" required placeholder="Nombre instructor"></div>
+            <div><label>Fecha (yyyyMMdd)</label><input name="fecha" required placeholder="20260719"></div>
+          </div>
+          <div class="field-row">
+            <div><label>Título material</label><input name="tituloMaterial" required placeholder="clase01-intro"></div>
+            <div><label>Tipo contenido</label>
+              <select name="tipoContenido"><option>PDF</option><option>VIDEO</option><option>PRESENTACION</option></select>
+            </div>
+            <div><label>Estado</label>
+              <select name="estado"><option>BORRADOR</option><option>PUBLICADO</option></select>
+            </div>
+          </div>
+          <div><label>Descripción</label><textarea name="descripcion" rows="2" placeholder="Contenido de la clase 1"></textarea></div>
+          <div class="actions"><button class="btn-primary" type="submit">Crear material</button></div>
+        </form>
+        <div class="results" id="res-crear"></div>
+      </div>
+
+      <div class="card">
+        <h3>Subir a S3 <span class="badge storage">S3</span></h3>
+        <form id="formSubirMaterial">
+          <div class="field-row">
+            <div><label>Título material</label><input name="tituloMaterial" required></div>
+            <div><label>Código curso</label><input name="codigoCurso" required></div>
+            <div><label>Fecha</label><input name="fecha" required></div>
+          </div>
+          <div class="actions"><button class="btn-primary" type="submit">Subir a S3</button></div>
+        </form>
+        <div class="results" id="res-subir"></div>
+      </div>
+
+      <div class="card">
+        <h3>Descargar material <span class="badge storage">S3</span></h3>
+        <form id="formDescargarMaterial">
+          <div class="field-row">
+            <div><label>Código curso</label><input name="codigoCurso" required></div>
+            <div><label>Fecha</label><input name="fecha" required></div>
+            <div><label>Título material</label><input name="tituloMaterial" required></div>
+          </div>
+          <div class="actions"><button class="btn-outline" type="submit">Descargar</button></div>
+        </form>
+        <div class="results" id="res-descargar"></div>
+      </div>
+
+      <div class="card">
+        <h3>Actualizar / Eliminar material</h3>
+        <form id="formActualizarMaterial">
+          <div class="field-row">
+            <div><label>Código curso</label><input name="codigoCurso" required></div>
+            <div><label>Fecha</label><input name="fecha" required></div>
+            <div><label>Título material</label><input name="tituloMaterial" required></div>
+            <div><label>Nueva descripción</label><input name="descripcion" placeholder="Actualizado"></div>
+          </div>
+          <div class="actions">
+            <button class="btn-primary" type="submit">Actualizar</button>
+            <button class="btn-danger" type="button" id="btnEliminarMaterial">Eliminar</button>
+          </div>
+        </form>
+        <div class="results" id="res-actualizar"></div>
+      </div>
+
+      <div class="card">
+        <h3>Consultar materiales</h3>
+        <form id="formConsultarMaterial">
+          <div class="field-row">
+            <div><label>Código curso (opcional)</label><input name="codigoCurso"></div>
+            <div><label>Fecha (opcional)</label><input name="fecha"></div>
+          </div>
+          <div class="actions"><button class="btn-outline" type="submit">Consultar</button></div>
+        </form>
+        <div class="results" id="res-consultar"></div>
+      </div>
+    </div>
+
+    <!-- ===================== INSCRIPCIONES ===================== -->
+    <div class="panel" id="panel-inscripciones">
+      <h2>Inscripciones a cursos</h2>
+      <p class="lead">Flujo asíncrono vía RabbitMQ: el estudiante se inscribe (productor →
+        <code>cola.inscripciones</code>) y el instructor procesa la cola (consumidor → persiste en Oracle Cloud).</p>
+
+      <div class="card">
+        <h3>Inscribirse a un curso <span class="badge produce">Productor → cola.inscripciones</span></h3>
+        <form id="formInscribir">
+          <div class="field-row">
+            <div><label>N° Inscripción</label><input name="numeroInscripcion" required placeholder="INS-001"></div>
+            <div><label>RUT estudiante</label><input name="rutEstudiante" required placeholder="19.111.222-3"></div>
+            <div><label>Nombre estudiante</label><input name="nombreEstudiante" required></div>
+          </div>
+          <div class="field-row">
+            <div><label>Código curso</label><input name="codigoCurso" required placeholder="CUR-101"></div>
+            <div><label>Nombre curso</label><input name="nombreCurso" required></div>
+            <div><label>Fecha (yyyyMMdd)</label><input name="fecha" required placeholder="20260719"></div>
+          </div>
+          <div class="actions"><button class="btn-primary" type="submit">Enviar inscripción a la cola</button></div>
+        </form>
+        <div class="results" id="res-inscribir"></div>
+      </div>
+
+      <div class="card">
+        <h3>Procesar cola pendiente <span class="badge consume">Consumidor ← cola.inscripciones</span></h3>
+        <p class="lead" style="margin-bottom:12px;">Drena los mensajes pendientes en RabbitMQ y los persiste en la
+          tabla <code>INSCRIPCIONES_CURSO_COLA</code> de Oracle Cloud.</p>
+        <div class="actions"><button class="btn-primary" id="btnProcesarCola">Procesar cola ahora</button></div>
+        <div class="results" id="res-procesar-cola"></div>
+      </div>
+    </div>
+
+    <!-- ===================== CALIFICACIONES ===================== -->
+    <div class="panel" id="panel-calificaciones">
+      <h2>Calificaciones</h2>
+      <p class="lead">El instructor registra notas de exámenes en tiempo real; estudiantes e
+        instructores pueden consultarlas.</p>
+
+      <div class="card">
+        <h3>Registrar calificación</h3>
+        <form id="formRegistrarNota">
+          <div class="field-row">
+            <div><label>RUT estudiante</label><input name="rutEstudiante" required></div>
+            <div><label>Código curso</label><input name="codigoCurso" required></div>
+            <div><label>Examen</label><input name="examen" required placeholder="Examen 1"></div>
+            <div><label>Nota</label><input name="nota" type="number" step="0.1" min="1" max="7" required></div>
+          </div>
+          <div class="actions"><button class="btn-primary" type="submit">Registrar</button></div>
+        </form>
+        <div class="results" id="res-registrar-nota"></div>
+      </div>
+
+      <div class="card">
+        <h3>Consultar calificaciones</h3>
+        <form id="formConsultarNotas">
+          <div class="field-row">
+            <div><label>Código curso (opcional)</label><input name="codigoCurso"></div>
+            <div><label>RUT estudiante (opcional)</label><input name="rutEstudiante"></div>
+          </div>
+          <div class="actions"><button class="btn-outline" type="submit">Consultar</button></div>
+        </form>
+        <div class="results" id="res-consultar-notas"></div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="activity">
+    <h3><span class="pulse"></span>Comunicación con el backend</h3>
+    <div class="activity-log" id="activityLog"></div>
+  </div>
+</div>
+
+<script src="https://alcdn.msauth.net/browser/2.38.3/js/msal-browser.min.js"></script>
+<script src="config.js"></script>
+<script src="auth.js"></script>
+<script src="api.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

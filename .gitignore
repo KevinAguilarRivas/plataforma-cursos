@@ -1,0 +1,21 @@
+# Variables de entorno con credenciales reales — NUNCA subir a Git
+.env
+
+# Build de Maven
+target/
+*.class
+
+# Wallets / claves
+*.pem
+*.key
+wallet/
+*.zip
+
+# IDE
+.idea/
+*.iml
+.vscode/
+
+# Sistema
+.DS_Store
+Thumbs.db
